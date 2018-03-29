@@ -210,11 +210,21 @@ def plot_broken_yaxis(x, y, name):
         'CmeR': [(22, 26), (0, 13)],
         'DesT': [(280.0, 370.0), (0.0, 55.0)],
         'NalC': [(240.0, 250.0), (0.0, 115.0)],
-        'PmeR': [(80.0, 90.0), (0.0, 55.0)],
+        'PmeR': [(250, 260), (0, 170)],
         'SmeT': [(25.0, 35.0), (0.0, 20.0)],
         'TtgR': [(175.0, 225.0), (0.0, 125.0)]
     }
     color = color_set[name]
+
+    wild_type_fi = {
+        'CmeR': [2847, 0.906743941],
+        'DesT': [3242, 1.340530537],
+        'NalC': [2007, 11.94419532],
+        'PmeR': [1416.5, 6.417578539],
+        'SmeT': [351.5, 1.119487909],
+        'TtgR': [1444, 5.823407202]
+    }
+    wt_rep, wt_fi = wild_type_fi[name]
     if name != 'SmeT':
         ylim, ylim2 = break_set[name]
 
@@ -226,9 +236,9 @@ def plot_broken_yaxis(x, y, name):
         ax0 = fig.add_subplot(111)
         ax1 = fig.add_subplot(gs[0])
         ax2 = fig.add_subplot(gs[1])
-        ax1.scatter(x, y, marker='o', alpha=0.75, edgecolors=almost_black, linewidth=0.15, c=color)
-        ax2.scatter(x, y, marker='o', alpha=0.75, edgecolors=almost_black, linewidths=0.15, c=color)
-
+        ax1.scatter(x, y, marker='o', alpha=0.5, edgecolors=almost_black, linewidth=0.15, c=color)
+        ax2.scatter(x, y, marker='o', alpha=0.5, edgecolors=almost_black, linewidths=0.15, c=color)
+        ax2.scatter(wt_rep, wt_fi, marker='o', alpha=1, edgecolors=almost_black, linewidths=0.5, c=almost_black, s=100)
         ax1.set_ylim(ylim[0], ylim[1])
         ax2.set_ylim(ylim2[0], ylim2[1])
 
@@ -281,15 +291,23 @@ def plot_broken_yaxis(x, y, name):
         # ax1.set_xlim(xlim)
         # ax2.set_xlim(xlim)
 
-        ax1.set_xlim(xmax=1.1*max(x))
-        ax2.set_xlim(xmax=1.1*max(x))
+        ax1.set_xlim(xmin=0.9*min(x), xmax=1.1*max(x))
+        ax2.set_xlim(xmin=0.9*min(x), xmax=1.1*max(x))
         ax1.tick_params(labelsize=12, labelbottom=False)
         ax2.tick_params(labelsize=12)
         ax0.set_xlabel('Repression', fontsize=15)
         ax0.set_ylabel('Fold Induction', fontsize=15)
         ax1.text(max(x), ylim[1], s=name, fontsize=15, horizontalalignment='right')
-
         plt.savefig('{0}.pdf'.format(name))
+
+        # formatting Vatsan likes
+        # ax1.tick_params(labelsize=10, labelbottom=False)
+        # ax2.tick_params(labelsize=10)
+        # ax0.set_xlabel('Repression', fontsize=15, fontname='Times New Roman')
+        # ax0.set_ylabel('Fold Induction', fontsize=15, fontname='Times New Roman')
+        # ax2.xaxis.set_minor_formatter(matplotlib.ticker.LogFormatter(minor_thresholds=(2, 0.4)))
+        # ax2.xaxis.set_major_formatter(matplotlib.ticker.LogFormatter())
+        # plt.savefig('{0}.png'.format(name), dpi=1000)
 
         # pts = np.array([0.015, 0.166, 0.133, 0.159, 0.041, 0.024, 0.195,
         #                 0.039, 0.161, 0.018, 0.143, 0.056, 0.125, 0.096, 0.094, 0.051,
@@ -337,8 +355,8 @@ def plot_broken_yaxis(x, y, name):
     else:
         fig = plt.figure()
         ax1 = fig.add_subplot(111)
-        ax1.scatter(x, y, marker='o', alpha=0.75, edgecolors=almost_black, linewidth=0.15, c=color)
-
+        ax1.scatter(x, y, marker='o', alpha=0.5, edgecolors=almost_black, linewidth=0.15, c=color)
+        ax1.scatter(wt_rep, wt_fi, marker='o', alpha=1, edgecolors=almost_black, linewidths=0.5, c=almost_black, s=100)
         ax1.set_xscale('log')
         spines_to_remove = ['top', 'right']
         for spine in spines_to_remove:
@@ -353,7 +371,7 @@ def plot_broken_yaxis(x, y, name):
         ax1.yaxis.label.set_color(almost_black)
         ax1.tick_params(axis='x', which='both', bottom='on', top='off')
         ax1.tick_params(labelsize=12)
-        ax1.set_xlim(xmax=1.1 * max(x))
+        ax1.set_xlim(xmin=0.9*min(x), xmax=1.1*max(x))
         plt.xlabel('Repression', fontsize=15)
         plt.ylabel('Fold Induction', fontsize=15)
         ax1.text(max(x), max(y), s=name, fontsize=15, horizontalalignment='right')
