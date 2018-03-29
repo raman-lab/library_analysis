@@ -4,7 +4,7 @@ import argparse
 import plotly
 import sys
 
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 import itertools
 
 

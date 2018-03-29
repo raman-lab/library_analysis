@@ -4,7 +4,7 @@ import itertools
 import json
 import pandas as pd
 import plotly
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 

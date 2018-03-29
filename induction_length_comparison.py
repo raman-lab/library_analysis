@@ -2,7 +2,7 @@
 import sys
 import pandas as pd
 import numpy as np
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 import plotly
 import plotly.graph_objs as go
 import collections

@@ -7,7 +7,7 @@ from color_palettes import palette
 import math
 import matplotlib
 
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt

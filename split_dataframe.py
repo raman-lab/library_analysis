@@ -2,7 +2,7 @@
 import argparse
 import pandas as pd
 import sys
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 
 
 def split_dataframe(input_file, fold_induction_range, repressed_value):

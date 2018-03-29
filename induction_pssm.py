@@ -4,7 +4,7 @@ import itertools
 import json
 import pandas as pd
 import plotly
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 
 
 def seq_heatmap_maker(data_file, msa, msa_csi, csi_json, allowable_lengths, column):

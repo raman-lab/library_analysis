@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from induction_plotly import dataframe_from_file
+from plotly_csv_scatter import dataframe_from_file
 
 
 def gc_content_of_seq(string):
