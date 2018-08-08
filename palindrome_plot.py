@@ -190,6 +190,11 @@ def df_scatter_plot(xy_df, base_name):
     log_axes = ['repressed', 'induced', 'free']
     normal_axes = ['fold_induction', 'fold_repression', 'csi_score']
 
+    # For bold font:
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    # note original tick label size = 12, fontsize = 15
+
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
     max_pal = max(xy_df['palindrome_length'])
@@ -206,10 +211,10 @@ def df_scatter_plot(xy_df, base_name):
     ax1.scatter(x_below_q90, y_below_q90, c=almost_gray, marker='o', alpha=0.5, edgecolor=almost_black, linewidth=0.15)
     ax1.scatter(x_above_q90, y_above_q90, c=color_set[base_name], marker='o', alpha=0.75,
                 edgecolor=almost_black, linewidth=0.15)
-
-    plt.xlabel('Number of Palindromic Nucleotides', fontsize=15)
-    plt.ylabel('Fold Induction', fontsize=15)
-    ax1.text(max_pal, max_fi, s=base_name, fontsize=15, horizontalalignment='right')
+    ax1.tick_params(labelsize=13)
+    plt.xlabel('Number of Palindromic Nucleotides', fontsize=16)
+    plt.ylabel('Fold Induction', fontsize=16)
+    ax1.text(max_pal, max_fi, s=base_name, fontsize=16, horizontalalignment='right')
     spines_to_remove = ['top', 'right']
     for spine in spines_to_remove:
         ax1.spines[spine].set_visible(False)
