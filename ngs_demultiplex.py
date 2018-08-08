@@ -30,7 +30,7 @@ def seq_counts_from_nested_counter(name_state_seq_barcode_counter, barcode_df, m
 
 
 def ngs_demultiplex(forward_fastq, barcode_library_mapping_csv, reverse_fastq, minimum_read_count, indexed):
-    barcode_df = pd.DataFrame.from_csv(barcode_library_mapping_csv)
+    barcode_df = pd.read_csv(barcode_library_mapping_csv, index_col=0)
     barcode_df.index = barcode_df.index.str.upper()
     count_series = pd.Series(0, index=barcode_df.index, name='Count')
     barcode_df = pd.concat([barcode_df, count_series], axis='columns')
