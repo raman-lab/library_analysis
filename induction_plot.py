@@ -225,6 +225,11 @@ def plot_broken_yaxis(x, y, name):
         'TtgR': [1444, 5.823407202]
     }
     wt_rep, wt_fi = wild_type_fi[name]
+
+    # For bold font:
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    # note original tick label size = 12, fontsize = 15
     if name != 'SmeT':
         ylim, ylim2 = break_set[name]
 
@@ -293,11 +298,11 @@ def plot_broken_yaxis(x, y, name):
 
         ax1.set_xlim(xmin=0.9*min(x), xmax=1.1*max(x))
         ax2.set_xlim(xmin=0.9*min(x), xmax=1.1*max(x))
-        ax1.tick_params(labelsize=12, labelbottom=False)
-        ax2.tick_params(labelsize=12)
-        ax0.set_xlabel('Repression', fontsize=15)
-        ax0.set_ylabel('Fold Induction', fontsize=15)
-        ax1.text(max(x), ylim[1], s=name, fontsize=15, horizontalalignment='right')
+        ax1.tick_params(labelsize=13, labelbottom=False)
+        ax2.tick_params(labelsize=13)
+        ax0.set_xlabel('Repression', fontsize=16)
+        ax0.set_ylabel('Fold Induction', fontsize=16)
+        ax1.text(max(x), ylim[1], s=name, fontsize=16, horizontalalignment='right')
         plt.savefig('{0}.pdf'.format(name))
 
         # formatting Vatsan likes
@@ -370,11 +375,11 @@ def plot_broken_yaxis(x, y, name):
         ax1.xaxis.label.set_color(almost_black)
         ax1.yaxis.label.set_color(almost_black)
         ax1.tick_params(axis='x', which='both', bottom='on', top='off')
-        ax1.tick_params(labelsize=12)
+        ax1.tick_params(labelsize=13)
         ax1.set_xlim(xmin=0.9*min(x), xmax=1.1*max(x))
-        plt.xlabel('Repression', fontsize=15)
-        plt.ylabel('Fold Induction', fontsize=15)
-        ax1.text(max(x), max(y), s=name, fontsize=15, horizontalalignment='right')
+        plt.xlabel('Repression', fontsize=16)
+        plt.ylabel('Fold Induction', fontsize=16)
+        ax1.text(max(x), max(y), s=name, fontsize=16, horizontalalignment='right')
         plt.savefig('{0}.pdf'.format(name))
 
 
