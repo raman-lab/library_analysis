@@ -56,6 +56,11 @@ def scatter_plot_with_percentile(xy_dataframe, percentile, name):
         'SmeT': '#648ace',
         'TtgR': '#ca743e'
     }
+    # For bold font:
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    # note original tick label size = 12, fontsize = 15
+
     xy_dataframe = xy_dataframe[xy_dataframe['pssm score'] >= 0]
     # xy_dataframe = xy_dataframe[xy_dataframe['pssm score'] >= -40]
     x = np.asarray(xy_dataframe['pssm score'])
@@ -105,9 +110,10 @@ def scatter_plot_with_percentile(xy_dataframe, percentile, name):
 
     ax1.set_ybound(lower=0.0)
     # ax1.set_xbound(lower=min(x) - 1, upper=max(x) + 1)
-    plt.xlabel('Pssm Score', fontsize=15)
-    plt.ylabel('Fold Induction', fontsize=15)
-    plt.text(max(x), max(y), s=name.split('_')[0], fontsize=15, horizontalalignment='right')
+    ax1.tick_params(labelsize=13)
+    plt.xlabel('Pssm Score', fontsize=16)
+    plt.ylabel('Fold Induction', fontsize=16)
+    plt.text(max(x), max(y), s=name.split('_')[0], fontsize=16, horizontalalignment='right')
 
     spines_to_remove = ['top', 'right']
     for spine in spines_to_remove:
