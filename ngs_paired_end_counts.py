@@ -84,7 +84,7 @@ def correct_library(library_fwd_match, library_rev_match, quality_fwd_match, qua
             corrected_quality_list.append(ascii_from_probability_incorrect(p_adjusted))
         else:
             if quality_fwd_match[index] == quality_rev_match[index]:
-                return None, None
+                return None, None, None
             elif quality_fwd_match[index] > quality_rev_match[index]:
                 corrected_library_list.append(library_fwd_match[index])
                 corrected_quality_list.append(quality_fwd_match[index])
