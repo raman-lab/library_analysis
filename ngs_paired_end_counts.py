@@ -26,7 +26,6 @@ def probability_incorrect_from_ascii(ascii_char, base=33):
 
 
 def expected_incorrect_from_quality(quality_str):
-    """Calculate expected number of incorrect nucleotides from ASCII quality string"""
     expected_incorrect_num = 0
     for ascii_char in quality_str.rstrip():
         expected_incorrect_num += probability_incorrect_from_ascii(ascii_char)
@@ -98,8 +97,8 @@ def correct_library(library_fwd_match, library_rev_match, quality_fwd_match, qua
 
 def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group_seq_counter, read_counters,
                                          expected_error_max, max_correction_distance, indexed=False):
-    """Extract barcodes and library sequences from reads and count occurrences by group and subgroup"""
-    expected_errors = np.array([])
+    expected_library_errors = np.array([])
+    expected_no_barcode_errors = np.array([])
     hamming_distances = np.array([])
     base_changes = np.array([])
     const_barcode5_array = barcode_df["5' Constant Region"].unique()
@@ -167,7 +166,14 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
                             else:
                                 read_counters['ambiguous barcode'] += 1
                 else:
-                    read_counters['no barcode'] += 1
+                    if len(barcode3_match_dict.keys()) == 0:
+                        no_barcode3_error = expected_incorrect_from_quality(quality_fwd)
+                        expected_no_barcode_errors = np.append(expected_no_barcode_errors, no_barcode3_error)
+                        read_counters["no 3' barcode"] += 1
+                    if len(barcode5_match_dict.keys()) == 0:
+                        no_barcode5_error = expected_incorrect_from_quality(quality_rev)
+                        expected_no_barcode_errors = np.append(expected_no_barcode_errors, no_barcode5_error)
+                        read_counters["no 5' barcode"] += 1
 
             library_match = None
             if barcode_pair_match:
@@ -216,7 +222,7 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
 
                 if library_match:
                     expected_incorrect = expected_incorrect_from_quality(quality_match)
-                    expected_errors = np.append(expected_errors, expected_incorrect)
+                    expected_library_errors = np.append(expected_library_errors, expected_incorrect)
                     if expected_incorrect > expected_error_max:
                         read_counters['library failing qc'] += 1
                     else:
@@ -231,12 +237,15 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
                         barcode_df.loc[barcode_series.name, 'Count'] += 1
                         group_seq_counter[group][subgroup][library_match] += 1
 
-    sys.stdout.write('Expected errors per read: {0} +/- {1} (n = {2})\n'.format(
-        np.average(expected_errors), np.std(expected_errors), len(expected_errors)))
+    sys.stdout.write('Expected errors per library sequence: {0} +/- {1} (n = {2})\n'.format(
+        np.average(expected_library_errors), np.std(expected_library_errors), len(expected_library_errors)))
     sys.stdout.write('Hamming distance per corrected barcode: {0} +/- {1} (n = {2})\n'.format(
         np.average(hamming_distances), np.std(hamming_distances), len(hamming_distances)))
     sys.stdout.write('Base changes per corrected library: {0} +/- {1} (n = {2})\n'.format(
         np.average(base_changes), np.std(base_changes), len(base_changes)))
+    sys.stdout.write('Expected errors per read missing barcode: {0} +/- {1} (n = {2})\n\n'.format(
+        np.average(expected_no_barcode_errors), np.std(expected_no_barcode_errors), len(expected_no_barcode_errors)
+    ))
     return group_seq_counter, barcode_df, read_counters
 
 
@@ -250,8 +259,9 @@ def ngs_paired_end_counts(forward_fastq, reverse_fastq, barcode_library_mapping,
     count_series = pd.Series(0, index=barcode_df.index, name='Count')
     barcode_df = pd.concat([barcode_df, count_series], axis='columns')
 
-    counter_list = ['total', 'perfect barcode', 'corrected barcode', 'ambiguous barcode', 'no barcode',
-                    'perfect library', 'library failing qc', 'no library', 'ambiguous library', 'corrected library']
+    counter_list = ['total', 'perfect barcode', 'corrected barcode', 'ambiguous barcode', "no 3' barcode",
+                    'perfect library', 'library failing qc', 'no library', 'ambiguous library', 'corrected library',
+                    "no 5' barcode"]
     read_counters = {key: 0 for key in counter_list}
 
     group_seq_counter = collections.defaultdict(dict)
