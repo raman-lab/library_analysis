@@ -62,7 +62,7 @@ def correct_barcode(barcode_pair_match, barcode_list, max_correction_distance):
     if len(min_indices) > 1 or min_hamming_distance >= max_correction_distance:
         return None, None
     else:
-        return corrected_barcode, min(hamming_distances)
+        return corrected_barcode, min_hamming_distance
 
 
 def ascii_from_probability_incorrect(probability_incorrect, base=33):
@@ -102,12 +102,12 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
     expected_errors = np.array([])
     hamming_distances = np.array([])
     base_changes = np.array([])
-    const_barcode_fwd_array = barcode_df['Forward Constant Region'].unique()
-    const_barcode_rev_array = barcode_df['Reverse Constant Region'].unique()
+    const_barcode5_array = barcode_df["5' Constant Region"].unique()
+    const_barcode3_array = barcode_df["3' Constant Region"].unique()
     const_library_array = barcode_df['Library Constant Region'].unique()
 
     barcode_list = ['_'.join(tup) for tup in zip(
-        barcode_df['Forward Barcode'].str.upper(), barcode_df['Reverse Barcode'].str.upper())]
+        barcode_df["5' Barcode"].str.upper(), barcode_df["3' Barcode"].str.upper())]
 
     with gzip.open(fastq_fwd, 'r') as r1, gzip.open(fastq_rev, 'r') as r2:
         for identifier_fwd, identifier_rev in itertools.izip(r1, r2):
@@ -129,38 +129,33 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
                                 'this script will be unable to match reads\n\n')
             else:
                 common_id = identifier_fwd.split()[0]
-            # PUT ERROR CHECK AFTER MERGE
-            # expected_incorrect = quality_check_fastq(quality_str)
-            # np.append(expected_errors, expected_incorrect)
-            # expected_errors.append(expected_incorrect)
-            # if expected_incorrect > expected_error_max:
-            #     read_counters['failing qc'] += 1
-            #     continue
+
+            # 5' barcode is captured by reverse read and 3' barcode is captured by forward read
             barcode_pair_match = None
             if indexed:
-                barcode_fwd = identifier_fwd.rstrip().split(':')[-1]
-                barcode_rev = identifier_rev.rstrip().split(':')[-1]
-                barcode_pair_match = '_'.join([barcode_fwd, barcode_rev])
+                barcode3 = identifier_fwd.rstrip().split(':')[-1]
+                barcode5 = identifier_rev.rstrip().split(':')[-1]
+                barcode_pair_match = '_'.join([barcode5, barcode3])
                 read_counters['perfect barcode'] += 1
             else:
-                barcode_fwd_match_dict = str_between_const_characters(read_fwd, const_barcode_fwd_array)
-                barcode_rev_match_dict = str_between_const_characters(read_rev, const_barcode_rev_array)
+                barcode3_match_dict = str_between_const_characters(read_fwd, const_barcode3_array)
+                barcode5_match_dict = str_between_const_characters(read_rev, const_barcode5_array)
 
-                barcode_fwd_match_dict = {k: v for (k, v) in barcode_fwd_match_dict.items() if v}
-                barcode_rev_match_dict = {k: v for (k, v) in barcode_rev_match_dict.items() if v}
+                barcode3_match_dict = {k: v for (k, v) in barcode3_match_dict.items() if v}
+                barcode5_match_dict = {k: v for (k, v) in barcode5_match_dict.items() if v}
 
-                if len(barcode_fwd_match_dict.keys()) > 1 or len(barcode_rev_match_dict.keys()) > 1:
-                    multiple_match_error(common_id, barcode_fwd_match_dict.keys(),
-                                         barcode_rev_match_dict.keys(), 'barcode constant region')
+                if len(barcode3_match_dict.keys()) > 1 or len(barcode5_match_dict.keys()) > 1:
+                    multiple_match_error(common_id, barcode3_match_dict.keys(),
+                                         barcode5_match_dict.keys(), 'barcode constant region')
                     read_counters['ambiguous barcode'] += 1
-                elif len(barcode_fwd_match_dict.keys()) == 1 and len(barcode_rev_match_dict.keys()) == 1:
-                    barcode_fwd_matches = barcode_fwd_match_dict.values()[0]
-                    barcode_rev_matches = barcode_rev_match_dict.values()[0]
-                    if len(barcode_fwd_matches) != 1 or len(barcode_rev_matches) != 1:
-                        multiple_match_error(common_id, barcode_fwd_matches, barcode_rev_matches, 'barcode')
+                elif len(barcode3_match_dict.keys()) == 1 and len(barcode5_match_dict.keys()) == 1:
+                    barcode3_matches = barcode3_match_dict.values()[0]
+                    barcode5_matches = barcode5_match_dict.values()[0]
+                    if len(barcode3_matches) != 1 or len(barcode5_matches) != 1:
+                        multiple_match_error(common_id, barcode3_matches, barcode5_matches, 'barcode')
                         read_counters['ambiguous barcode'] += 1
                     else:
-                        barcode_pair_match = '_'.join([barcode_fwd_matches[0], barcode_rev_matches[0]])
+                        barcode_pair_match = '_'.join([barcode5_matches[0], barcode3_matches[0]])
                         if barcode_pair_match in barcode_list:
                             read_counters['perfect barcode'] += 1
                         else:
@@ -225,11 +220,11 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
                     if expected_incorrect > expected_error_max:
                         read_counters['library failing qc'] += 1
                     else:
-                        barcode_fwd, barcode_rev = barcode_pair_match.split('_')
+                        barcode5, barcode3 = barcode_pair_match.split('_')
                         barcode_series = barcode_df.loc[
                             (barcode_df['Library Constant Region'] == const_library_match) &
-                            (barcode_df['Forward Barcode'] == barcode_fwd) &
-                            (barcode_df['Reverse Barcode'] == barcode_rev)
+                            (barcode_df["5' Barcode"] == barcode5) &
+                            (barcode_df["3' Barcode"] == barcode3)
                         ].iloc[0]
                         group = barcode_series['Group']
                         subgroup = barcode_series['Subgroup']
@@ -249,7 +244,7 @@ def ngs_paired_end_counts(forward_fastq, reverse_fastq, barcode_library_mapping,
                           max_correction_distance):
     barcode_df = pd.read_csv(barcode_library_mapping, index_col=False)
     barcode_df.dropna(inplace=True)
-    columns_to_capitalize = ['Forward Barcode', 'Reverse Barcode']
+    columns_to_capitalize = ["5' Barcode", "3' Barcode"]
     for column in columns_to_capitalize:
         barcode_df[column] = barcode_df[column].str.upper()
     count_series = pd.Series(0, index=barcode_df.index, name='Count')
