@@ -111,7 +111,8 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
     with gzip.open(fastq_fwd, 'r') as r1, gzip.open(fastq_rev, 'r') as r2:
         for identifier_fwd, identifier_rev in itertools.izip(r1, r2):
             read_counters['total'] += 1
-
+            if read_counters['total'] % 1000000 == 0:
+                sys.stdout.write('Processed {0} reads\n'.format(read_counters['total']))
             read_fwd = r1.next().rstrip()
             r1.next()
             quality_fwd = r1.next().rstrip()
