@@ -227,11 +227,16 @@ def group_seq_counter_from_paired_fastqs(fastq_fwd, fastq_rev, barcode_df, group
                         read_counters['library failing qc'] += 1
                     else:
                         barcode5, barcode3 = barcode_pair_match.split('_')
-                        barcode_series = barcode_df.loc[
-                            (barcode_df['Library Constant Region'] == const_library_match) &
-                            (barcode_df["5' Barcode"] == barcode5) &
-                            (barcode_df["3' Barcode"] == barcode3)
-                        ].iloc[0]
+                        try:
+                            barcode_series = barcode_df.loc[
+                                (barcode_df['Library Constant Region'] == const_library_match) &
+                                (barcode_df["5' Barcode"] == barcode5) &
+                                (barcode_df["3' Barcode"] == barcode3)
+                            ].iloc[0]
+                        except IndexError:
+                            sys.stderr.write("Could not find the 5' barcode {0}, 3' barcode {1}, and library constant "
+                                             "region {2} in csv file\n".format(barcode5, barcode3, const_library_match))
+                            continue
                         group = barcode_series['Group']
                         subgroup = barcode_series['Subgroup']
                         barcode_df.loc[barcode_series.name, 'Count'] += 1
