@@ -18,6 +18,9 @@ from Bio.Seq import Seq
 
 from barcode_hamming_distance import compute_hamming_distance
 
+# TODO: profile to speed up.
+# TODO: output is the transpose of what it should be
+
 
 def probability_incorrect_from_ascii(ascii_char, base=33):
     phred_score = ord(ascii_char) - base
@@ -280,7 +283,7 @@ def ngs_paired_end_counts(forward_fastq, reverse_fastq, barcode_library_mapping,
     )
 
     for group, subgroup_dict in group_seq_counter.items():
-        count_df = pd.DataFrame.from_dict(subgroup_dict, orient='index')
+        count_df = pd.DataFrame.from_dict(subgroup_dict, orient='index').T
         if not count_df.empty:
             count_df.to_csv('{0}_counts.csv'.format(group))
 
